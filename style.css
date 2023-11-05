@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-  max-width: 600px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   background-color: #fff;
@@ -32,12 +32,19 @@ label {
 }
 
 input[type="text"] {
-  width: 100%;
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
+}
+
+#title {
+  width: 200px;
+}
+
+#tweet {
+  width: 400px;
 }
 
 button {
@@ -62,4 +69,13 @@ h2 {
 p {
   font-size: 18px;
   margin-bottom: 10px;
+}
+
+.tweet-container {
+  margin-bottom: 20px;
+}
+
+hr {
+  margin: 20px 0;
+  border: 1px solid #000;
 }
