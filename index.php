@@ -1,70 +1,43 @@
 <!DOCTYPE html>
-<html lang="ja">
-
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laravel News</title>
-  <script>
-    function confirmSubmit() {
-      return confirm("投稿しますか？");
-    }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laravel News</title>
 </head>
-
 <body>
-
-  <div class="container">
     <h1>Laravel News</h1>
 
-    <!-- ツイート投稿フォーム -->
-    <form method="post" action="index.php" onsubmit="return confirmSubmit();">
-      <label for="title">タイトル (最大30文字):</label>
-      <input type="text" id="title" name="title" maxlength="30" required><br>
-      <label for="tweet">ツイート内容:</label>
-      <input type="text" id="tweet" name="tweet" required><br>
-      <button type="submit">投稿</button>
+    <form action="index.php" method="post">
+        <label for="title">タイトル:</label>
+        <input type="text" name="title" required>
+        <br>
+        <label for="message">投稿内容:</label>
+        <textarea name="message" rows="4" required></textarea>
+        <br>
+        <input type="submit" value="投稿">
     </form>
 
     <?php
-    // ツイートをテキストファイルに保存
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-      $title = $_POST["title"];
-      $tweet = $_POST["tweet"];
-      $file = "tweets.txt";
+    // 投稿処理
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $title = $_POST["title"];
+        $message = $_POST["message"];
 
-      // ファイルにツイートを追記
-      $currentTweets = file_get_contents($file);
-      $currentTweets .= "タイトル: " . $title . "\n" . "ツイート: " . $tweet . "\n\n";
-      file_put_contents($file, $currentTweets);
+        // 投稿データを保存
+        $post = "$title: $message\n";
+        file_put_contents('posts.txt', $post, FILE_APPEND);
     }
 
-    // ツイート一覧を表示
-    $file = "tweets.txt";
-    if (file_exists($file)) {
-      echo "<h2>ツイート一覧</h2>";
-      $tweets = file_get_contents($file);
-      $tweetArray = explode("\n\n", $tweets);
-
-      foreach ($tweetArray as $tweet) {
-        if (!empty($tweet)) {
-          // タイトルとツイート内容を分割
-          list($title, $content) = explode("\n", $tweet, 2);
-          echo "<div class='tweet-container'>";
-          // タイトルをリンクとして表示
-          echo "<a href='tweet_detail.php?title=" . urlencode($title) . "'><strong>" . htmlspecialchars($title) . "</strong></a><br>";
-          echo nl2br(htmlspecialchars($content));
-          echo "</div>";
-          echo "<hr>";  // 横線を追加
+    // 投稿一覧表示
+    if (file_exists('posts.txt')) {
+        $posts = file('posts.txt');
+        echo "<h2>投稿一覧</h2>";
+        foreach ($posts as $postId => $post) {
+            // 各投稿のタイトルと削除リンクを表示
+            echo "<p><a href='post_detail.php?id=$postId'>$post</a><a href='delete_post.php?postId=$postId'>[削除]</a></p>";
         }
-      }
-    } else {
-      echo "<p>まだツイートはありません。</p>";
     }
     ?>
-
-  </div>
-
 </body>
-
 </html>
