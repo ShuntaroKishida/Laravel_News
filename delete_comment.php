@@ -24,3 +24,4 @@ if (file_exists($commentFile)) {
 
 header("Location: post_detail.php?id=$postId");
 exit();
+?>

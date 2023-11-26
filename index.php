@@ -1,44 +1,73 @@
+<?php
+$error = '';
+$postId = '';
+$postAll = '';
+$postDetail = '';
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $title = $_POST["title"];
+  $message = $_POST["message"];
+
+  if (mb_strlen($title) > 30) {
+    $error = "タイトルは30文字以下で入力してください。";
+  } else if (mb_strlen($title) === 0) {
+    $error = "タイトルは必須です。";
+  } else if (mb_strlen($message) === 0) {
+    $error = "投稿内容は必須です。";
+  } else {
+    $postId = time();
+    $post = "$postId: $title: $message\n";
+    file_put_contents('posts.txt', $post, FILE_APPEND);
+  }
+
+  header("Location: index.php");
+  exit();
+}
+
+if (file_exists('posts.txt')) {
+  $posts = file('posts.txt');
+  $postAll = "<h2>投稿一覧</h2>";
+
+  $postId = 0;
+  while ($postId < count($posts)) {
+    $post = $posts[$postId];
+    list($currentPostId, $rest) = explode(':', $post, 2);
+    $deletePost = "<p><a>$rest</a><a href='delete_post.php?postId=$postId'>[削除]</a></p>";
+    $detailPost = "<p><a href='post_detail.php?id=$postId'>→記事全文・コメントを読む</a></p>";
+    $postDetail .= $deletePost . $detailPost;
+    $postId++;
+  }
+}
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laravel News</title>
+  <script src="./script.js" defer></script>
 </head>
 
 <body>
   <h1>Laravel News</h1>
 
-  <form action="index.php" method="post">
+  <form id="myForm" action="index.php" method="post">
     <label for="title">タイトル:</label>
-    <input type="text" name="title" required>
+    <input type="text" name="title">
     <br>
     <label for="message">投稿内容:</label>
-    <textarea name="message" rows="4" required></textarea>
+    <textarea name="message" rows="4"></textarea>
     <br>
-    <input type="submit" value="投稿">
+    <input type="hidden" name="postId" value="<?php echo $postId; ?>">
+    <input type="submit" value="投稿" onclick="confirmSubmission()">
   </form>
 
-  <?php
-  if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $title = $_POST["title"];
-    $message = $_POST["message"];
-    $post = "$title: $message\n";
-    file_put_contents('posts.txt', $post, FILE_APPEND);
-  }
+  <?php echo $error; ?>
+  <?php echo $postAll; ?>
+  <?php echo $postDetail; ?>
 
-  if (file_exists('posts.txt')) {
-    $posts = file('posts.txt');
-    echo "<h2>投稿一覧</h2>";
-    $postId = 0;
-    while ($postId < count($posts)) {
-      $post = $posts[$postId];
-      echo "<p><a href='post_detail.php?id=$postId'>$post</a><a href='delete_post.php?postId=$postId'>[削除]</a></p>";
-      $postId++;
-    }
-  }
-  ?>
 </body>
 
 </html>
