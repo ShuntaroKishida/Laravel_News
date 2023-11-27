@@ -1,10 +1,10 @@
 <?php
 $error = '';
-$postId = '';
 $postAll = '';
 $postDetail = '';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $postId = $_POST["postId"];
   $title = $_POST["title"];
   $message = $_POST["message"];
 
@@ -30,10 +30,17 @@ if (file_exists('posts.txt')) {
 
   $postId = 0;
   while ($postId < count($posts)) {
-    $post = $posts[$postId];
-    list($currentPostId, $rest) = explode(':', $post, 2);
-    $deletePost = "<p><a>$rest</a><a href='delete_post.php?postId=$postId'>[削除]</a></p>";
-    $detailPost = "<p><a href='post_detail.php?id=$postId'>→記事全文・コメントを読む</a></p>";
+    $currentPost = $posts[$postId];
+    $postElements = explode(':', $currentPost, 3);
+    
+    if (count($postElements) < 3) {
+      $postId++;
+      continue;
+    }
+
+    list($currentPostId, $title, $message) = $postElements;
+    $deletePost = "<p><a>$title: $message</a><a href='delete_post.php?postId=$currentPostId'>[削除]</a></p>";
+    $detailPost = "<p><a href='post_detail.php?postId=$currentPostId'>→記事全文・コメントを読む</a></p>";
     $postDetail .= $deletePost . $detailPost;
     $postId++;
   }
